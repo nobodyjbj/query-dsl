@@ -57,11 +57,11 @@ public class QuerydslBasicTest {
 
     @Test
     void startQuerydsl() {
-        // QMember m = new QMember("m");
-        // QMember m = QMember.member;
+        // QMember m = new QMember("m"); // Qtype 선언 1
+        // QMember m = QMember.member; // Qtype 선언 1
 
         Member findMember = query
-                .select(member)
+                .select(member) // Qtype 선언 3 static 으로 선언
                 .from(member)
                 .where(member.username.eq("member1"))
                 .fetchOne();
