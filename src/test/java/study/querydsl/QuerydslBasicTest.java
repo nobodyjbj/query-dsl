@@ -240,7 +240,7 @@ public class QuerydslBasicTest {
     }
 
     @Test
-    void thetaJoin() {
+    void thetaJoin() { // 연관관계가 없는 조인
         em.persist(new Member("teamA"));
         em.persist(new Member("teamB"));
         em.persist(new Member("teamC"));
@@ -255,5 +255,38 @@ public class QuerydslBasicTest {
         assertThat(results)
                 .extracting("username")
                 .containsExactly("teamA", "teamB");
+    }
+
+    @Test
+    void joinOnFiltering() { // 연관관계가 있을때 예제
+        // 회원과 팀을 조인하면서, 팀 이름이 teamA인 팀만 조인, 회원은 모두 조회
+        List<Tuple> results = query
+                .select(member, team)
+                .from(member)
+                .leftJoin(member.team, team)
+                .on(team.name.eq("teamA")) // 내부조인이면 where로 해결을 하고, 외부 조인이면 on을 사용하면 좋다.
+                .fetch();
+
+        for (Tuple tuple : results) {
+            System.out.println(tuple);
+        }
+    }
+
+    @Test
+    void joinOnNoRelation() { // 연관관계가 없는 조인
+        em.persist(new Member("teamA"));
+        em.persist(new Member("teamB"));
+        em.persist(new Member("teamC"));
+
+        // 회원의 이름과 팀이름과 같은 회원 외부 조인
+        List<Tuple> results = query
+                .select(member, team)
+                .from(member)
+                .leftJoin(team).on(member.username.eq(team.name))
+                .fetch();
+
+        for (Tuple tuple : results) {
+            System.out.println(tuple);
+        }
     }
 }
