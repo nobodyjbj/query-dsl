@@ -2,6 +2,7 @@ package study.querydsl;
 
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -395,6 +396,38 @@ public class QuerydslBasicTest {
 
         for (Tuple tuple : results) {
             System.out.println(tuple);
+        }
+    }
+
+    @Test
+    void basicCase() {
+        List<String> results = query
+                .select(member.age
+                        .when(10).then("열살")
+                        .when(20).then("스무살")
+                        .otherwise("기타"))
+                .from(member)
+                .fetch();
+
+        for (String s : results) {
+            System.out.println(s);
+        }
+    }
+
+    @Test
+    void complexCase() {
+        // 이러한 로직은 application 에서 하는 것이 좋다.
+        List<String> results = query
+                .select(new CaseBuilder()
+                        .when(member.age.between(0, 20)).then("0~20살")
+                        .when(member.age.between(21, 30)).then("21~30살")
+                        .otherwise("기타")
+                )
+                .from(member)
+                .fetch();
+
+        for (String s : results) {
+            System.out.println(s);
         }
     }
 
